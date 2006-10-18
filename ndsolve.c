@@ -27,7 +27,7 @@ void adams_bashford(unsigned short offset, unsigned short steps, float h, float 
 	if (!offset) {
 		//printf("Beginning: setting initial values\n");
         	// Set initial acceleration, x[0] and y[0] are supposed to be set - as are vx[0] and vy[0]
-	        r = sqrt(x[0]*x[0] + y[0]*y[0]);
+	        r = sqrtf(x[0]*x[0] + y[0]*y[0]);
         	ax[0] = a_x(r, x[0]);
         	ay[0] = a_y(r, y[0]);
 
@@ -46,7 +46,7 @@ void adams_bashford(unsigned short offset, unsigned short steps, float h, float 
         	vy[1] = vy[0] + h * ay[0];
   
 		// Set the second acceleration
-                r = sqrt(x[1]*x[1] + y[1]*y[1]);
+                r = sqrtf(x[1]*x[1] + y[1]*y[1]);
                 ax[1] = a_x(r, x[1]);
                 ay[1] = a_y(r, y[1]);
 
@@ -62,7 +62,7 @@ void adams_bashford(unsigned short offset, unsigned short steps, float h, float 
                 vy[2] = vy[1] + h * (c1 * ay[1] - c2 * ay[0]);
 
                 // Calculate the current acceleration from the current position
-                r = sqrt(x[2]*x[2] + y[2]*y[2]);
+                r = sqrtf(x[2]*x[2] + y[2]*y[2]);
                 ax[2] = a_x(r, x[2]);
                 ay[2] = a_y(r, y[2]);
 
