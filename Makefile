@@ -1,7 +1,13 @@
 CC		= gcc
-#CCFLAGS         = -O3 -march=pentium4 -fomit-frame-pointer -ffast-math  -fno-math-errno -funsafe-math-optimizations -ffinite-math-only -fno-trapping-math
-#CCFLAGS		= -O3 -msse2
-CCFLAGS         = -O3 -march=pentium4 -fomit-frame-pointer -ffast-math  -fno-math-errno -funsafe-math-optimizations -ffinite-math-only -fno-trapping-math -msse2 -mfpmath=sse
+CCFLAGS		= -O3 -fomit-frame-pointer -ffast-math  -fno-math-errno -funsafe-math-optimizations -ffinite-math-only -fno-trapping-math
+ifdef CPU
+CCFLAGS		+= -march=${CPU}
+endif
+
+ifdef SSE2
+CCFLAGS		+= -msse2 -mfpmath=sse
+endif
+
 LD		= ${CC}
 LDFLAGS	 	= 
 
