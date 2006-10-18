@@ -70,49 +70,6 @@ double calc_chaos(ode_params* params, calc_params data[4]) {
 
 	//printf("x[last] = %f\n", data[0].x[last]);
 	return fabs(difx) + fabs(dify);
-	
-	/*
-	// Make arrays for the results
-	double x_i[params->steps];
-	double y_i[params->steps];
-	double vx_i[params->steps];
-	double vy_i[params->steps];
-	double ax_i[params->steps];
-	double ay_i[params->steps];
-
-	double stepsize = params->t/params->steps;
-
-	// Get the initial values of x0, and y0
-	double x0 = params->x0;
-	double y0 = params->y0;
-
-	vx_i[0] = params->vx0;
-	vy_i[0] = params->vy0;
-
-	double x1, x2, y1, y2;
-
-	y_i[0] = y0;
-	x_i[0] = x0 - dx;
-	solve_ode(params->offset, params->steps, stepsize, x_i, y_i, vx_i, vy_i, ax_i, ay_i);
-	x1 = x_i[params->steps-1];
-	//printf("x1[%d] = %f\n", params->steps-1, x1);
-
-	x_i[0] = x0 + dx;
-	solve_ode(params->offset, params->steps, stepsize, x_i, y_i, vx_i, vy_i, ax_i, ay_i);
-	x2 = x_i[params->steps-1];
-	//printf("x2[%d] = %f\n", params->steps-1, x1);
-
-	x_i[0] = x0;
-	y_i[0] = y0 - dy;
-	solve_ode(params->offset, params->steps, stepsize, x_i, y_i, vx_i, vy_i, ax_i, ay_i);
-	y1 = y_i[params->steps-1];
-
-	y_i[0] = y0 + dy;
-	solve_ode(params->offset, params->steps, stepsize, x_i, y_i, vx_i, vy_i, ax_i, ay_i);
-	y2 = y_i[params->steps-1];
-	
-	return fabs(x2-x1) + fabs(y2-y1);
-	*/
 }
 
 typedef struct {
@@ -128,7 +85,7 @@ typedef struct {
 	unsigned short offset;
 } calc_window;
 
-void calc_image(unsigned int width, unsigned int height, double buffer[width*height], calc_params*** data, calc_window* window) {
+void calc_image(unsigned int width, unsigned int height, double* buffer, calc_params*** data, calc_window* window) {
 	unsigned int x_i, y_i, k;
 	double xstep, ystep, x, y;
 
@@ -168,7 +125,7 @@ void calc_image(unsigned int width, unsigned int height, double buffer[width*hei
 	printf(" done\n");
 }
 
-void doubletochar(unsigned int size, double buf[size], char charbuf[size]) {
+void doubletochar(unsigned int size, double* buf, char* charbuf) {
 	unsigned int i;
 	double maxval=0., minval=0., scale;
 
@@ -189,7 +146,7 @@ void doubletochar(unsigned int size, double buf[size], char charbuf[size]) {
 	}
 }
 
-void writetiff(char* filename, int width, int height, char buffer[width*height]) {
+void writetiff(char* filename, int width, int height, char* buffer) {
 	TIFF* image;
 
 	printf("Writing TIFF...\n");
@@ -205,8 +162,10 @@ void writetiff(char* filename, int width, int height, char buffer[width*height])
 	TIFFSetField(image, TIFFTAG_BITSPERSAMPLE, 8);
 	TIFFSetField(image, TIFFTAG_SAMPLESPERPIXEL, 1);
 	TIFFSetField(image, TIFFTAG_ROWSPERSTRIP, height);
-
-	//TIFFSetField(image, TIFFTAG_COMPRESSION, COMPRESSION_LZW);
+	
+	#ifdef LZW
+	TIFFSetField(image, TIFFTAG_COMPRESSION, COMPRESSION_LZW);
+	#endif
 	TIFFSetField(image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
 	TIFFSetField(image, TIFFTAG_FILLORDER, FILLORDER_MSB2LSB);
 	TIFFSetField(image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
@@ -222,7 +181,7 @@ void writetiff(char* filename, int width, int height, char buffer[width*height])
 		
 }
 
-void duplicate_data(int width, int height, char data[width*height]) {
+void duplicate_data(int width, int height, char* data) {
 	char imagedata[width*height];
 	
 	int x, y, k;
