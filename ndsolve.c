@@ -1,27 +1,27 @@
 #include "ndsolve.h"
 
 // This function requires the initial place, time and velocity in the particle state to be given
-double a_x(double r, double x) {
+float a_x(float r, float x) {
         return x*(1.-r)/r;
 }
 
-double a_y(double r, double y) {
+float a_y(float r, float y) {
         return y*(1.-r)/r - 1.;
 }
 
-void solve_ode(unsigned short offset, unsigned short steps, double h, double x[3], double y[3], double vx[3], double vy[3], double ax[3], double ay[3]) {
+void solve_ode(unsigned short offset, unsigned short steps, float h, float x[3], float y[3], float vx[3], float vy[3], float ax[3], float ay[3]) {
 	adams_bashford(offset, steps, h, x, y, vx, vy, ax, ay);
 }
 
-void adams_bashford(unsigned short offset, unsigned short steps, double h, double x[3], double y[3], double vx[3], double vy[3], double ax[3], double ay[3]) {
+void adams_bashford(unsigned short offset, unsigned short steps, float h, float x[3], float y[3], float vx[3], float vy[3], float ax[3], float ay[3]) {
         //printf("Solving ODE for x=%f, y=%f, %d steps of %f\n", x[0], y[0], steps, h);
 
         unsigned short k;
 
-        double r;
+        float r;
 
-        const double c1 = 3./2.;
-        const double c2 = 1./2.;
+        const float c1 = 3./2.;
+        const float c2 = 1./2.;
 
 	// If we start with an offset wo don't need to set this
 	if (!offset) {

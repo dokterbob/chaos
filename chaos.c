@@ -1,32 +1,32 @@
 #include "chaos.h"
 
 typedef struct {
-	double x0;
-	double y0;
+	float x0;
+	float y0;
 
-	double vx0;
-	double vy0;
+	float vx0;
+	float vy0;
 
-	double t;
+	float t;
 
 	unsigned short steps;
 	unsigned short offset;
 } ode_params;
 
 typedef struct {
-        double x[3];
-        double y[3];
-        double vx[3];
-        double vy[3];
-        double ax[3];
-        double ay[3];
+        float x[3];
+        float y[3];
+        float vx[3];
+        float vy[3];
+        float ax[3];
+        float ay[3];
 } calc_params;
 
 // Dit is rotzooi !!!
-double calc_chaos(ode_params* params, calc_params data[4]) { 
+float calc_chaos(ode_params* params, calc_params data[4]) { 
         // The step size for calculation
-        double dx = 0.01;
-        double dy = 0.01;
+        float dx = 0.01;
+        float dy = 0.01;
 
 	// Set initial values
 	if (!params->offset) {
@@ -52,7 +52,7 @@ double calc_chaos(ode_params* params, calc_params data[4]) {
 	}
 
 	// Set the stepsize
-	double h = params->t/params->steps;
+	float h = params->t/params->steps;
 
 	int i;
 	for (i=0; i<4; i++) {
@@ -61,7 +61,7 @@ double calc_chaos(ode_params* params, calc_params data[4]) {
 	}
 
 	const int cur = 1;
-	double difx, dify;
+	float difx, dify;
 
 	//printf("x1=%f, x2=%f, y1=%f, y2=%f\n", data[1].x[cur], data[0].x[cur], data[3].y[cur], data[2].y[cur]);
 
@@ -73,21 +73,21 @@ double calc_chaos(ode_params* params, calc_params data[4]) {
 }
 
 typedef struct {
-	double xmin;
-	double xmax;
+	float xmin;
+	float xmax;
 
-	double ymin;
-	double ymax;
+	float ymin;
+	float ymax;
 
-	double t;
+	float t;
 
 	unsigned short steps;
 	unsigned short offset;
 } calc_window;
 
-void calc_image(unsigned int width, unsigned int height, double* buffer, calc_params*** data, calc_window* window) {
+void calc_image(unsigned int width, unsigned int height, float* buffer, calc_params*** data, calc_window* window) {
 	unsigned int x_i, y_i, k;
-	double xstep, ystep, x, y;
+	float xstep, ystep, x, y;
 
 	printf("Calculating %dx%d pixels in %d steps: \n", width, height, window->steps);
 
@@ -125,9 +125,9 @@ void calc_image(unsigned int width, unsigned int height, double* buffer, calc_pa
 	printf(" done\n");
 }
 
-void doubletochar(unsigned int size, double* buf, char* charbuf) {
+void floattochar(unsigned int size, float* buf, char* charbuf) {
 	unsigned int i;
-	double maxval=0., minval=0., scale;
+	float maxval=0., minval=0., scale;
 
 	printf("Converting to image...\n");
 
@@ -212,7 +212,7 @@ int main() {
 
 	printf("Producing image of %dx%d...\n", width, height);
 
-	double buffer[width*height];
+	float buffer[width*height];
 	char imagedata[width*height];
 
 	calc_window window;
@@ -249,7 +249,7 @@ int main() {
 	for (i=1; i<imax; i++) {
 		printf("Frame: %d Range: %f-%f\n", i, window.t*(i-1), window.t*i);
 		calc_image(width/2, height, buffer, data, &window);
-		doubletochar(width * height/2, buffer, imagedata);
+		floattochar(width * height/2, buffer, imagedata);
 		duplicate_data(width, height, imagedata);
 		snprintf(filename, 255, "imgs/%.5d.tif", i-1);
 		writetiff(filename, width, height, imagedata);
