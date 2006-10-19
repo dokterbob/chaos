@@ -207,8 +207,8 @@ void duplicate_data(int width, int height, char* data) {
 int main() {
 	int width, height;
 	
-	width = 320;
-	height = 240;
+	width = XRES;
+	height = YRES;
 
 	printf("Producing image of %dx%d...\n", width, height);
 
