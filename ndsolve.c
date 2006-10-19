@@ -89,6 +89,16 @@ void method_a(unsigned short offset, unsigned short steps, double h, double x[3]
 
 	double k;
 
+	const double h_2 = (1./2.)*h;
+	const double h_48 = (1./48.)*pow(h, 2.);
+	const double h_5_48 = 5*h_48;
+	const double h_7_48 = 7*h_48;
+
+	const double h2 = 2*h;
+	const double h4_3 = (4./3.)*h;
+
+	const double h_1_3 = (1./3.)*pow(h, 2.);
+
         if (!offset) {
                 euler(0, 1, h, x, y, vx, vy, ax, ay);
         }
@@ -98,14 +108,14 @@ void method_a(unsigned short offset, unsigned short steps, double h, double x[3]
         	k1x = ax[1];
         	k1y = ay[1];
 
-        	tx = x[1] - (1./2.)*h*vx[1] + (5./48.)*pow(h,2.)*ax[1] + (1./48.)*pow(h,2.)*ax[0];
-        	ty = y[1] - (1./2.)*h*vy[1] + (5./48.)*pow(h,2.)*ay[1] + (1./48.)*pow(h,2.)*ay[0];
+        	tx = x[1] - h_2*vx[1] + h_5_48*ax[1] + h_48*ax[0];
+        	ty = y[1] - h_2*vy[1] + h_5_48*ay[1] + h_48*ay[0];
         	r = sqrt(tx*tx + ty*ty);
         	k2x = a_x(r, tx);
         	k2y = a_y(r, ty);
 
-        	tx = x[1] + (1./2.)*h*vx[1] + (7./48.)*pow(h,2.)*ax[1] + (1./48.)*pow(h,2.)*ax[0];
-        	ty = y[1] + (1./2.)*h*vy[1] + (7./48.)*pow(h,2.)*ay[1] + (1./48.)*pow(h,2.)*ay[0];
+        	tx = x[1] + h_2*vx[1] + h_7_48*ax[1] + h_48*ax[0];
+        	ty = y[1] + h_2*vy[1] + h_7_48*ay[1] + h_48*ay[0];
         	r = sqrt(tx*tx + ty*ty);
         	k3x = a_x(r, tx);
         	k3y = a_y(r, ty);
@@ -113,11 +123,11 @@ void method_a(unsigned short offset, unsigned short steps, double h, double x[3]
         	sx = k1x + k2x + k3x;
         	sy = k1y + k2y + k3y;
 
-        	vx[2] = vx[0] - 2 * h * k1x + (4./3.) * h * sx;
-        	x[2] = 2 * x[1] - x[0] + (1./3.) * pow(h,2.) * sx;
+        	vx[2] = vx[0] - h2 * k1x + h4_3 * sx;
+        	x[2] = 2 * x[1] - x[0] + h_1_3 * sx;
 
-        	vy[2] = vy[0] - 2 * h * k1y + (4./3.) * h * sy;
-        	y[2] = 2 * y[1] - y[0] + (1./3.) * pow(h,2.) * sy;
+        	vy[2] = vy[0] - h2 * k1y + h4_3 * sy;
+        	y[2] = 2 * y[1] - y[0] + h_1_3 * sy;
 
                 pr_step(x[2], y[2], vx[2], vy[2], ax[2], ay[2]);
 

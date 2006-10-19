@@ -7,6 +7,6 @@
 #define YMIN -1.4
 #define YMAX 3.0
 
-#define TSTEP 1.
+#define TSTEP 0.1
 #define STEPSS 100
 
