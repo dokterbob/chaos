@@ -90,14 +90,14 @@ void method_a(unsigned short offset, unsigned short steps, double h, double x[3]
 	double k;
 
 	/*
-	#define ha 0.01
-	#define h_2 (1./2.)*ha
-	#define h_48 (1./48.)*ha*ha
-	
-	#define h2 2*ha
-	#define h4_3 (4./3.)*ha
+        define ha 0.01
+        define h_2 (1./2.)*ha
+        define h_48 (1./48.)*ha*ha
 
-	#define h_1_3 (1./3.)*ha*ha
+        define h2 2*ha
+        define h4_3 (4./3.)*ha
+
+        define h_1_3 (1./3.)*ha*ha
 	*/
 
 	const double h_2 = (1./2.)*h;
