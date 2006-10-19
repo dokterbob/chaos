@@ -243,7 +243,7 @@ int main() {
 	printf("done.\n");
 		
 	int i;
-	int imax=2;
+	int imax=300;
 	char filename[255];
 
 	for (i=1; i<imax; i++) {

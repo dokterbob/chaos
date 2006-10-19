@@ -8,6 +8,10 @@ ifdef SSE2
 CCFLAGS		+= -msse2 -mfpmath=sse
 endif
 
+ifdef STEPLOG
+CCFLAGS		+= -DSTEPLOG
+endif
+
 LD		= ${CC}
 LDFLAGS	 	= 
 

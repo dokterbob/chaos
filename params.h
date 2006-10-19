@@ -1,5 +1,5 @@
-#define XRES 320
-#define YRES 240
+#define XRES 640
+#define YRES 480
 
 #define XMIN 0.
 #define XMAX 2.3
@@ -8,5 +8,5 @@
 #define YMAX 3.0
 
 #define TSTEP 1.
-#define STEPSS 1000
+#define STEPSS 100
 
