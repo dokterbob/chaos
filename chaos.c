@@ -149,7 +149,7 @@ void doubletochar(unsigned int size, double* buf, char* charbuf) {
 void writetiff(char* filename, int width, int height, char* buffer) {
 	TIFF* image;
 
-	printf("Writing TIFF...\n");
+	printf("Writing %s...\n", filename);
 	
 	if((image = TIFFOpen(filename, "w")) == NULL) {
 		printf("Could not open file for writing\n");
@@ -244,16 +244,37 @@ int main() {
 		
 	int i;
 	int imax=2;
-	char filename[255];
+	char basename[255];
+	char tiffile[255];
+	char bmpfile[255];
+	char command[255];
 
 	for (i=1; i<imax; i++) {
 		printf("Frame: %d Range: %f-%f\n", i, window.t*(i-1), window.t*i);
 		calc_image(width/2, height, buffer, data, &window);
+
 		doubletochar(width * height/2, buffer, imagedata);
 		duplicate_data(width, height, imagedata);
-		snprintf(filename, 255, "imgs/%.5d.tif", i-1);
-		writetiff(filename, width, height, imagedata);
 
+		snprintf(basename, 255, "imgs/%.5d", i-1);
+		snprintf(tiffile, 255, "%s.tif", basename);
+		snprintf(bmpfile, 255, "%s.bmp", basename);
+
+		writetiff(tiffile, width, height, imagedata);
+
+		printf("Converting and scaling...\n");
+		snprintf(command, 255, "convert -contrast -depth 24 -type truecolor -resize 50%% %s %s", tiffile, bmpfile);
+
+		printf("%s\n", command);
+		system(command);
+
+		snprintf(command, 255, "scp -C %s drbob@whale.dokterbob.net:/var/files/Unsorted/Temp/chaos/", bmpfile);
+                printf("%s\n", command);
+                system(command);
+
+                snprintf(command, 255, "rm %s %s", tiffile, bmpfile);
+                printf("%s\n", command);
+                system(command);
 		window.offset = 1;
 	}
 			

@@ -1,5 +1,5 @@
-#define XRES 640
-#define YRES 480
+#define XRES 320
+#define YRES 240
 
 #define XMIN 0.
 #define XMAX 2.3

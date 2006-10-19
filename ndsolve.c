@@ -10,9 +10,9 @@ double a_y(double r, double y) {
 }
 
 void solve_ode(unsigned short offset, unsigned short steps, double h, double x[3], double y[3], double vx[3], double vy[3], double ax[3], double ay[3]) {
-	//adams_bashford(offset, steps, h, x, y, vx, vy, ax, ay);
+	adams_bashford(offset, steps, h, x, y, vx, vy, ax, ay);
 	//euler(offset, steps, h, x, y, vx, vy, ax, ay);
-        method_a(offset, steps, h, x, y, vx, vy, ax, ay);
+        //method_a(offset, steps, h, x, y, vx, vy, ax, ay);
 }
 
 void shuffle_vars(double x[3], double y[3], double vx[3], double vy[3], double ax[3], double ay[3]) {
