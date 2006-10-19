@@ -212,7 +212,7 @@ int main() {
 
 	printf("Producing image of %dx%d...\n", width, height);
 
-	double buffer[width*height];
+	double buffer[width/2*height];
 	char imagedata[width*height];
 
 	calc_window window;
@@ -232,7 +232,7 @@ int main() {
 	char *free_ptr;
 	char *base_ptr;
 	
-	int d[3] = {width, height, 4};
+	int d[3] = {width/2, height, 4};
 	int st[3] = {0,0,0};
 	
 	if ( (data = (calc_params***)daav(sizeof(calc_params), 3, d, st, &err_code, &free_ptr, NULL)) == NULL ) {
@@ -249,7 +249,7 @@ int main() {
 	char bmpfile[255];
 	char command[255];
 
-	for (i=1; i<imax; i++) {
+	for (i=1; 1; i++) {
 		printf("Frame: %d Range: %f-%f\n", i, window.t*(i-1), window.t*i);
 		calc_image(width/2, height, buffer, data, &window);
 
@@ -268,7 +268,7 @@ int main() {
 		printf("%s\n", command);
 		system(command);
 
-		snprintf(command, 255, "scp -C %s drbob@whale.dokterbob.net:/var/files/Unsorted/Temp/chaos/", bmpfile);
+		snprintf(command, 255, "scp -C %s drbob@whale.dokterbob.net:/var/files/Unsorted/Temp/chaos/mini/", bmpfile);
                 printf("%s\n", command);
                 system(command);
 
