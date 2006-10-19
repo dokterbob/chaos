@@ -91,13 +91,13 @@ void method_a(unsigned short offset, unsigned short steps, double h, double x[3]
 
 	const double h_2 = (1./2.)*h;
 	const double h_48 = (1./48.)*pow(h, 2.);
-	const double h_5_48 = 5*h_48;
-	const double h_7_48 = 7*h_48;
 
 	const double h2 = 2*h;
 	const double h4_3 = (4./3.)*h;
 
 	const double h_1_3 = (1./3.)*pow(h, 2.);
+
+	double qx, qy, px, py, rx, ry;
 
         if (!offset) {
                 euler(0, 1, h, x, y, vx, vy, ax, ay);
@@ -108,14 +108,23 @@ void method_a(unsigned short offset, unsigned short steps, double h, double x[3]
         	k1x = ax[1];
         	k1y = ay[1];
 
-        	tx = x[1] - h_2*vx[1] + h_5_48*ax[1] + h_48*ax[0];
-        	ty = y[1] - h_2*vy[1] + h_5_48*ay[1] + h_48*ay[0];
+		qx = x[1] - h_2*vx[1];
+		qy = y[1] - h_2*vy[1];
+
+		px = h_48*ax[0];
+		py = h_48*ay[0];
+
+		rx = h_48*ax[1];
+		ry = h_48*ay[1];
+
+        	tx = qx + 5*rx + px;
+        	ty = qy + 5*ry + py;
         	r = sqrt(tx*tx + ty*ty);
         	k2x = a_x(r, tx);
         	k2y = a_y(r, ty);
 
-        	tx = x[1] + h_2*vx[1] + h_7_48*ax[1] + h_48*ax[0];
-        	ty = y[1] + h_2*vy[1] + h_7_48*ay[1] + h_48*ay[0];
+        	tx = qx + 7*rx + px;
+        	ty = qy + 7*ry + py;
         	r = sqrt(tx*tx + ty*ty);
         	k3x = a_x(r, tx);
         	k3y = a_y(r, ty);
