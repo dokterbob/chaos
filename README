@@ -5,6 +5,8 @@ physics at the University of Amsterdam in 2006. It is a GPL'd program that calcu
 the predictability of a very simple physical system in very high precision and is able
 to write the results to a TIFF file.
 
+The program is available at: http://www.dokterbob.net/files/chaos/
+
 What it does
 ============
 This program does calculations on a fairly simple physical system, namely a spring pendulum:
