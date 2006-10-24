@@ -19,15 +19,6 @@ typedef struct {
 } ode_params;
 
 typedef struct {
-        double x[3];
-        double y[3];
-        double vx[3];
-        double vy[3];
-        double ax[3];
-        double ay[3];
-} calc_params;
-
-typedef struct {
         double xmin;
         double xmax;
 

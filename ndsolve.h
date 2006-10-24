@@ -12,6 +12,16 @@
 double a_x(double r, double x);
 double a_y(double r, double y);
 
+/* This struct contains the information the solvers need to do their job */
+typedef struct {
+        double x[3];
+        double y[3];
+        double vx[3];
+        double vy[3];
+        double ax[3];
+        double ay[3];
+} calc_params;
+
 /* This function numerically solves a second-degree ODE for the motion 
  * equations given above.
  *
@@ -24,32 +34,32 @@ double a_y(double r, double y);
  *
  * Actually, this function is nothing more than a 'redirection' to one of
  * the other three available solve functions. */
-void solve_ode(unsigned short offset, unsigned short steps, double h, double x[3], double y[3], double vx[3], double vy[3], double ax[3], double ay[3]);
+void solve_ode(unsigned short offset, unsigned short steps, double h, calc_params* data);
 
 /* A helper function that moves the values in these arrays to the lower element
  * like so:
  * 1 -> 0: x[0] = x[1]
  * 2 -> 1: x[1] = x[2] */
-void shuffle_vars(double x[3], double y[3], double vx[3], double vy[3], double ax[3], double ay[3]);
+void shuffle_vars(calc_params* data);
 
 /* Debug function, printing the these variables, if STEPLOG is set.
  * Otherwise it does nothing. */
-void pr_step(double x, double y, double vx, double vy, double ax, double ay);
+void pr_step(calc_params* data, short int n);
 
 /* This function amounts to a backward Euler approximation, originally written
  * to kickstart the other two approximations but then later extended to a full-
  * fledged solver. Parameters as in the solve_ode function. */
-void euler(unsigned short offset, unsigned short steps, double h, double x[3], double y[3], double vx[3], double vy[3], double ax[3], double ay[3]);
+void euler(unsigned short offset, unsigned short steps, double h, calc_params* data);
 
 /* This 'mysterious' method I found in Huang, T.Y. and Zhou Q.L.: 1993, A Numerical Method for Differential Equations of 
  * Second Order as published in Celestial Mechanics and Dynamical Astronomy 55: p 405-409 which can be found at
  * http://www.springerlink.com/content/h2281317764612p5/
  * For the first two steps I use Euler approximation. Parameters, once again, as in solve_ode. */
-void method_a(unsigned short offset, unsigned short steps, double h, double x[3], double y[3], double vx[3], double vy[3], double ax[3], double ay[3]);
+void method_a(unsigned short offset, unsigned short steps, double h, calc_params* data);
 
 /* Adams-Bashford algorithm implemented on the basis of the syllabus 'Inleiding Numerieke Natuurkunde' (Dutch) as can be 
  * found on http://www.nikhef.nl/%7Eh73/numnat/docu/col-tot.pdf
  * Once again same parameters as solve_ode. */
-void adams_bashford(unsigned short offset, unsigned short steps, double h, double x[3], double y[3], double vx[3], double vy[3], double ax[3], double ay[3]);
+void adams_bashford(unsigned short offset, unsigned short steps, double h, calc_params* data);
 
 

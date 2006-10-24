@@ -33,7 +33,7 @@ double calc_chaos(ode_params* params, calc_params data[4]) {
 
 	int i;
 	for (i=0; i<4; i++) {
-		solve_ode(params->offset, params->steps, h, data[i].x, data[i].y, data[i].vx, data[i].vy, data[i].ax, data[i].ay);
+		solve_ode(params->offset, params->steps, h, &data[i]);
 	}
 
 	const int cur = 1;
