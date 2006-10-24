@@ -217,7 +217,7 @@ void parse_opts(int argc, char **argv, calc_window* window) {
 				break;
 
                         case 't':
-                                window->t = strtof(optarg, &err, 10);
+                                window->t = strtod(optarg, &err);
 				break;
 
                         case 's':
@@ -232,7 +232,7 @@ void parse_opts(int argc, char **argv, calc_window* window) {
 		}
 	
 		if (*err != '\0') {
-			fprintf(stderr, "usage: chaos.x --xres <pixels> --yres <pixels> --xmin <value> --xmax <value> --ymin <value> --ymax <value> --time-per-step <value> --steps <value>\n");
+			fprintf(stderr, "usage: %s --xres <pixels> --yres <pixels> --xmin <value> --xmax <value> --ymin <value> --ymax <value> --time-per-step <value> --steps <value>\n", argv[0]);
                         exit(EXIT_FAILURE);
 		}
 	}
