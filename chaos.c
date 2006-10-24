@@ -1,28 +1,5 @@
 #include "chaos.h"
 
-typedef struct {
-	double x0;
-	double y0;
-
-	double vx0;
-	double vy0;
-
-	double t;
-
-	unsigned short steps;
-	unsigned short offset;
-} ode_params;
-
-typedef struct {
-        double x[3];
-        double y[3];
-        double vx[3];
-        double vy[3];
-        double ax[3];
-        double ay[3];
-} calc_params;
-
-// Dit is rotzooi !!!
 double calc_chaos(ode_params* params, calc_params data[4]) { 
         // The step size for calculation
         double dx = 0.01;
@@ -56,34 +33,17 @@ double calc_chaos(ode_params* params, calc_params data[4]) {
 
 	int i;
 	for (i=0; i<4; i++) {
-		//printf("data[%d]\n",i);
 		solve_ode(params->offset, params->steps, h, data[i].x, data[i].y, data[i].vx, data[i].vy, data[i].ax, data[i].ay);
 	}
 
 	const int cur = 1;
 	double difx, dify;
 
-	//printf("x1=%f, x2=%f, y1=%f, y2=%f\n", data[1].x[cur], data[0].x[cur], data[3].y[cur], data[2].y[cur]);
-
 	difx = data[1].x[cur] - data[0].x[cur];
 	dify = data[3].y[cur] - data[2].y[cur];
 
-	//printf("x[last] = %f\n", data[0].x[last]);
 	return fabs(difx) + fabs(dify);
 }
-
-typedef struct {
-	double xmin;
-	double xmax;
-
-	double ymin;
-	double ymax;
-
-	double t;
-
-	unsigned short steps;
-	unsigned short offset;
-} calc_window;
 
 void calc_image(unsigned int width, unsigned int height, double* buffer, calc_params*** data, calc_window* window) {
 	unsigned int x_i, y_i, k;
@@ -111,13 +71,15 @@ void calc_image(unsigned int width, unsigned int height, double* buffer, calc_pa
 			params.y0 = y;
 			
 			buffer[k] = calc_chaos(&params, data[x_i][y_i]);
-
-			//printf("Calculating x=%d y=%d: %f (%fx%f)\n", x_i, y_i, buffer[k], x, y);
-
+			#ifdef DEBUG
+			printf("Calculating x=%d y=%d: %f (%fx%f)\n", x_i, y_i, buffer[k], x, y);
+			#endif
 			x += xstep;
 			k++;
 		}
 		y += ystep;
+
+		// Print a dot for every row processed
 		printf(".");
 		fflush(stdout);
 	}
@@ -163,9 +125,11 @@ void writetiff(char* filename, int width, int height, char* buffer) {
 	TIFFSetField(image, TIFFTAG_SAMPLESPERPIXEL, 1);
 	TIFFSetField(image, TIFFTAG_ROWSPERSTRIP, height);
 	
+	// Ofter libtiff does not yet contain the LZW algorithm
 	#ifdef LZW
 	TIFFSetField(image, TIFFTAG_COMPRESSION, COMPRESSION_LZW);
 	#endif
+	
 	TIFFSetField(image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
 	TIFFSetField(image, TIFFTAG_FILLORDER, FILLORDER_MSB2LSB);
 	TIFFSetField(image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
@@ -192,7 +156,6 @@ void duplicate_data(int width, int height, char* data) {
 	k=0;
 	for (y=0; y<height; y++) {
 		for (x=0; x<halfway; x++) {
-			//printf("data[%d] = data[%d]\n",y*width + halfway + x,y*halfway + x);
 			imagedata[y*width + halfway + x] = data[y*halfway + x];
 			imagedata[y*width + halfway - x - 1] = data[y*halfway + x];
 			k++;
