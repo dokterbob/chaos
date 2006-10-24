@@ -349,14 +349,12 @@ int main(int argc, char **argv) {
 		writetiff(tiffile, window.width, window.height, imagedata);
 
 #ifdef FINISH
+		// This requires ImageMagick
 		printf("Converting and scaling...\n");
 		snprintf(command, 255, "convert -contrast -depth 24 -type truecolor -resize 50%% %s %s", tiffile, bmpfile);
 		execute(command);
 
-		snprintf(command, 255, "scp -C %s drbob@whale.dokterbob.net:/var/files/Unsorted/Temp/chaos/mini/", bmpfile);
-		execute(command);
-
-                snprintf(command, 255, "rm %s %s", tiffile, bmpfile);
+                snprintf(command, 255, "rm %s", tiffile);
 		execute(command);
 #endif
 		window.offset++;
