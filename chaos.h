@@ -1,8 +1,16 @@
 #include <math.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <getopt.h>
 #include <tiffio.h>
+
+// Library for multi-dimensional efficient memory allocation
 #include "daa.h"
+
+// Numerical solver for 2-dimensional ODE's
 #include "ndsolve.h"
+
+// Parameters for the calculation of 
 #include "params.h"
 
 typedef struct {
@@ -19,6 +27,9 @@ typedef struct {
 } ode_params;
 
 typedef struct {
+	unsigned short width;
+	unsigned short height;
+
         double xmin;
         double xmax;
 
