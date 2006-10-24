@@ -9,7 +9,7 @@ double a_y(double r, double y) {
         return y*(1.-r)/r - 1.;
 }
 
-void solve_ode(unsigned short offset, unsigned short steps, double h, calc_params* data) {
+void solve_ode(unsigned char offset, unsigned short steps, double h, calc_params* data) {
 	adams_bashford(offset, steps, h, data);
 	//euler(offset, steps, h, data);
         //method_a(offset, steps, h, data);
@@ -32,7 +32,7 @@ void shuffle_vars(calc_params* data) {
                 data->ay[1] = data->ay[2];
 }
 
-void pr_step(calc_params* data, short int n) {
+void pr_step(calc_params* data, unsigned char n) {
 #ifdef STEPLOG
 	printf("x=%f y=%f vx=%f vy=%f ax=%f ay=%f\n", data->x[n], data->y[n], data->vx[n], data->vy[n], data->ax[n], data->ay[n]);
 	sleep(1);
@@ -40,7 +40,7 @@ void pr_step(calc_params* data, short int n) {
 }
 
 // Backward Euler approximation
-void euler(unsigned short offset, unsigned short steps, double h, calc_params* data) {
+void euler(unsigned char offset, unsigned short steps, double h, calc_params* data) {
 	double r;
 	unsigned short k=0;
 
@@ -81,7 +81,7 @@ void euler(unsigned short offset, unsigned short steps, double h, calc_params* d
 
 }
 
-void method_a(unsigned short offset, unsigned short steps, double h, calc_params* data) {
+void method_a(unsigned char offset, unsigned short steps, double h, calc_params* data) {
         double k1x, k2x, k3x, k1y, k2y, k3y;
 	double tx, ty;
 	double sx, sy;
@@ -144,7 +144,7 @@ void method_a(unsigned short offset, unsigned short steps, double h, calc_params
         }
 }
 
-void adams_bashford(unsigned short offset, unsigned short steps, double h, calc_params *data) {
+void adams_bashford(unsigned char offset, unsigned short steps, double h, calc_params *data) {
         unsigned short k;
 
         const double c1 = 3./2.;

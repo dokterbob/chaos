@@ -1,6 +1,6 @@
 #include "chaos.h"
 
-double calc_chaos(ode_params* params, calc_params data[4]) { 
+double calc_chaos(ode_params* params, calc_params* data) { 
         // The step size for calculation
         double dx = 0.01;
         double dy = 0.01;

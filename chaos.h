@@ -15,7 +15,7 @@ typedef struct {
         double t;
 
         unsigned short steps;
-        unsigned short offset;
+        unsigned char offset;
 } ode_params;
 
 typedef struct {
@@ -28,10 +28,10 @@ typedef struct {
         double t;
 
         unsigned short steps;
-        unsigned short offset;
+        unsigned char offset;
 } calc_window;
 
-double calc_chaos(ode_params* params, calc_params data[4]);
+double calc_chaos(ode_params* params, calc_params* data);
 
 void calc_image(unsigned int width, unsigned int height, double* buffer, calc_params*** data, calc_window* window);
 
@@ -40,6 +40,8 @@ void doubletochar(unsigned int size, double* buf, char* charbuf);
 void writetiff(char* filename, int width, int height, char* buffer);
 
 void duplicate_data(int width, int height, char* data);
+
+void execute(char* command);
 
 int main();
 
