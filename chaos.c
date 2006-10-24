@@ -180,53 +180,60 @@ void parse_opts(int argc, char **argv, calc_window* window) {
 	
 	static struct option long_options[] =
 		{
-			{"width", required_argument, NULL, 'w'},
-			{"height", required_argument, NULL, 'h'},
+			{"xres", required_argument, NULL, 'w'},
+			{"yres", required_argument, NULL, 'h'},
 			{"xmin", required_argument, NULL, 'a'},
 			{"xmax", required_argument, NULL, 'b'},
 			{"ymin", required_argument, NULL, 'c'},
 			{"ymax", required_argument, NULL, 'd'},
-			{"time", required_argument, NULL, 't'},
+			{"time-per-step", required_argument, NULL, 't'},
 			{"steps", required_argument, NULL, 's'}
 		};
-
+	
 	while ((opt = getopt_long(argc, argv, "w:h:a:b:c:d:t:s", long_options, &option_index)) != -1) {
-		switch (opt) {
+		switch (opt) {	
 			case 'w':
 				window->width = strtol(optarg, &err, 10);
-				if (*err == '\0') break;
+				break;
 
 			case 'h':
 				window->height = strtol(optarg, &err, 10);
-				if (*err == '\0') break;
+				break;
 
 			case 'a':
                                 window->xmin = strtol(optarg, &err, 10);
-	                        if (*err == '\0') break;
+				break;
 
                         case 'b':
                                 window->xmax = strtol(optarg, &err, 10);
-                                if (*err == '\0') break;
+				break;
 
                         case 'c':
                                 window->ymin = strtol(optarg, &err, 10);
-                                if (*err == '\0') break;
+				break;
 
                         case 'd':
                                 window->ymin = strtol(optarg, &err, 10);
-                                if (*err == '\0') break;
+				break;
 
                         case 't':
                                 window->t = strtof(optarg, &err, 10);
-                                if (*err == '\0') break;
+				break;
 
                         case 's':
                                 window->steps = strtol(optarg, &err, 10);
-                                if (*err == '\0') break;
+				break;
 
 			default:
-				fprintf(stderr, "usage: chaos.x --width <d> --height <d> --xmin <d> --xmax <d> --time <f> --steps <n>\n");
-				exit(EXIT_FAILURE); 
+				// If none matched, make sure we set *err to something other than NULL
+				err = malloc(sizeof(char));
+				strcpy(err, "\1");
+				break;
+		}
+	
+		if (*err != '\0') {
+			fprintf(stderr, "usage: chaos.x --xres <pixels> --yres <pixels> --xmin <value> --xmax <value> --ymin <value> --ymax <value> --time-per-step <value> --steps <value>\n");
+                        exit(EXIT_FAILURE);
 		}
 	}
 
