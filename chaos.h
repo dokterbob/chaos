@@ -15,13 +15,6 @@
 #include "params.h"
 
 typedef struct {
-        double t;
-
-        unsigned short steps;
-        unsigned char offset;
-} ode_params;
-
-typedef struct {
 	unsigned short width;
 	unsigned short height;
 
@@ -31,15 +24,15 @@ typedef struct {
         double ymin;
         double ymax;
 
-        double t;
+        double tstep;
 	double tmax;
 
         unsigned short steps;
         unsigned char offset;
 } calc_window;
 
-// Calculate the amount of chaos for a given set of initial values
-double calc_chaos(ode_params* params, calc_params* data);
+// Calculate the amount of chaos (predictability) for a given set of initial values
+double calc_chaos(calc_window* params, calc_params* data);
 
 void calc_image(unsigned int width, unsigned int height, double* buffer, calc_params*** data, calc_window* window);
 

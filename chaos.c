@@ -1,8 +1,8 @@
 #include "chaos.h"
 
-double calc_chaos(ode_params* params, calc_params* data) { 
+double calc_chaos(calc_window* params, calc_params* data) { 
 	// Set the stepsize
-	double h = params->t/params->steps;
+	double h = params->tstep/params->steps;
 
 	// Solve that ODE like you're bourne to do it! (*SHAKE it*!)
 	int i;
@@ -63,14 +63,14 @@ void calc_image(unsigned int width, unsigned int height, double* buffer, calc_pa
 
 	printf("Calculating %dx%d pixels in %d steps: \n", width, height, window->steps);
 
-	ode_params params;
+	//ode_params;
 
 	xstep = (window->xmax - window->xmin)/width;
 	ystep = (window->ymax - window->ymin)/height;
 
-	params.t = window->t;
-	params.steps = window->steps;
-	params.offset = window->offset;
+	//params.t = window->t;
+	//params.steps = window->steps;
+	//params.offset = window->offset;
 
 	k=0;
 	y=window->ymin;
@@ -78,9 +78,9 @@ void calc_image(unsigned int width, unsigned int height, double* buffer, calc_pa
 		
 		x=window->xmin;
 		for (x_i=0; x_i<width; x_i++) {
-			if (!params.offset) set_initial(x, y, data[x_i][y_i]);
+			if (!window->offset) set_initial(x, y, data[x_i][y_i]);
 			
-			buffer[k] = calc_chaos(&params, data[x_i][y_i]);
+			buffer[k] = calc_chaos(window, data[x_i][y_i]);
 			#ifdef DEBUG
 			printf("Calculated x=%d y=%d: %f (%fx%f)\n", x_i, y_i, buffer[k], x, y);
 			#endif
@@ -227,7 +227,7 @@ void parse_opts(int argc, char **argv, calc_window* window) {
 				break;
 
                         case 't':
-                                window->t = strtod(optarg, &err);
+                                window->tstep = strtod(optarg, &err);
 				break;
 
                         case 's':
@@ -266,7 +266,7 @@ int main(int argc, char **argv) {
 	window.xmin = XMIN;
 	window.ymax = YMAX;
 	window.ymin = YMIN;
-	window.t = TSTEP;
+	window.tstep = TSTEP;
 	window.steps = TSTEP*STEPSS;
 	window.tmax = -1.;
 	window.offset = 0;
@@ -320,9 +320,9 @@ int main(int argc, char **argv) {
 	}
 
 	while (endless || t<window.tmax) {
-		t = window.t*(window.offset+1);
+		t = window.tstep*(window.offset+1);
 		
-		printf("\nFrame: %d Range: %f-%f\n", window.offset+1, window.t*window.offset, t);
+		printf("\nFrame: %d Range: %f-%f\n", window.offset+1, window.tstep*window.offset, t);
 		calc_image(window.width/wfactor, window.height, buffer, data, &window);
 
 		doubletochar(window.width * window.height/wfactor, buffer, imagedata);

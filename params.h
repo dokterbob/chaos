@@ -5,8 +5,8 @@
 #define VX0 0.
 #define VY0 0.
 
-#define XRES 100
-#define YRES 100
+#define XRES 320
+#define YRES 240
 
 #define XMIN -10.
 #define XMAX 10.
