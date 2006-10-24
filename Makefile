@@ -1,5 +1,10 @@
 CC		= gcc
-CCFLAGS		= -O3 -fomit-frame-pointer -ffast-math  -fno-math-errno -funsafe-math-optimizations -fno-trapping-math
+CCFLAGS		= -O2
+
+ifndef DEBUG
+CCFLAGS		+= -O3 -fomit-frame-pointer -ffast-math  -fno-math-errno -funsafe-math-optimizations -fno-trapping-math
+endif
+
 ifdef CPU
 CCFLAGS		+= -march=${CPU}
 endif
