@@ -173,36 +173,101 @@ void execute(char* command) {
 				
 }
 
-int main() {
+void parse_opts(int argc, char **argv, calc_window* window) {
+	int opt, option_index;
+
+	char* err;
+	
+	static struct option long_options[] =
+		{
+			{"xres", required_argument, NULL, 'w'},
+			{"yres", required_argument, NULL, 'h'},
+			{"xmin", required_argument, NULL, 'a'},
+			{"xmax", required_argument, NULL, 'b'},
+			{"ymin", required_argument, NULL, 'c'},
+			{"ymax", required_argument, NULL, 'd'},
+			{"time-per-step", required_argument, NULL, 't'},
+			{"steps", required_argument, NULL, 's'}
+		};
+	
+	while ((opt = getopt_long(argc, argv, "w:h:a:b:c:d:t:s", long_options, &option_index)) != -1) {
+		switch (opt) {	
+			case 'w':
+				window->width = strtol(optarg, &err, 10);
+				break;
+
+			case 'h':
+				window->height = strtol(optarg, &err, 10);
+				break;
+
+			case 'a':
+                                window->xmin = strtol(optarg, &err, 10);
+				break;
+
+                        case 'b':
+                                window->xmax = strtol(optarg, &err, 10);
+				break;
+
+                        case 'c':
+                                window->ymin = strtol(optarg, &err, 10);
+				break;
+
+                        case 'd':
+                                window->ymin = strtol(optarg, &err, 10);
+				break;
+
+                        case 't':
+                                window->t = strtod(optarg, &err);
+				break;
+
+                        case 's':
+                                window->steps = strtol(optarg, &err, 10);
+				break;
+
+			default:
+				// If none matched, make sure we set *err to something other than NULL
+				err = malloc(sizeof(char));
+				strcpy(err, "\1");
+				break;
+		}
+	
+		if (*err != '\0') {
+			fprintf(stderr, "usage: %s --xres <pixels> --yres <pixels> --xmin <value> --xmax <value> --ymin <value> --ymax <value> --time-per-step <value> --steps <value>\n", argv[0]);
+                        exit(EXIT_FAILURE);
+		}
+	}
+
+}
+
+int main(int argc, char **argv) {
 	unsigned short width, height;
 	unsigned char wfactor;
 
-	width = XRES;
-	height = YRES;
-
-	printf("Producing image of %dx%d...\n", width, height);
-
 	calc_window window;
-        if (XMIN == -XMAX) {
+
+	// Set defaults
+	window.width = XRES;
+	window.height = YRES;
+	window.xmax = XMAX;
+	window.xmin = XMIN;
+	window.t = TSTEP;
+	window.steps = TSTEP*STEPSS;
+	window.offset = 1;
+	
+	parse_opts(argc, argv, &window);
+
+	printf("Producing image of %dx%d...\n", window.width, window.height);
+
+        if (window.xmin == -window.xmax) {
                 wfactor = 2;
 		printf("Image symmetric, only calculating half.\n");
 		window.xmin = 0.;
-		window.xmax = XMAX;
         } else {
-		window.xmin = XMIN;
-		window.xmax = XMAX;
                 wfactor = 1;
-		
         }
 	
-        window.ymin = YMIN;
-        window.ymax = YMAX;
-        window.t = TSTEP;
-        window.steps = TSTEP*STEPSS;
-        window.offset = 0;
-
-	double buffer[width/wfactor*height];
-	char imagedata[width*height];
+	double buffer[window.width/wfactor*window.height];
+	char imagedata[window.width*window.height];
 
 	printf("Allocating memory... ");
 	calc_params*** data;
@@ -211,7 +276,7 @@ int main() {
 	char *free_ptr;
 	char *base_ptr;
 	
-	int d[3] = {width/wfactor, height, 4};
+	int d[3] = {window.width/wfactor, window.height, 4};
 	int st[3] = {0,0,0};
 	
 	if ( (data = (calc_params***)daav(sizeof(calc_params), 3, d, st, &err_code, &free_ptr, NULL)) == NULL ) {
@@ -230,17 +295,17 @@ int main() {
 
 	for (i=1; i<imax; i++) {
 		printf("Frame: %d Range: %f-%f\n", i, window.t*(i-1), window.t*i);
-		calc_image(width/wfactor, height, buffer, data, &window);
+		calc_image(window.width/wfactor, window.height, buffer, data, &window);
 
-		doubletochar(width * height/wfactor, buffer, imagedata);
+		doubletochar(window.width * window.height/wfactor, buffer, imagedata);
 		
-		if (wfactor == 2) duplicate_data(width, height, imagedata);
+		if (wfactor == 2) duplicate_data(window.width, window.height, imagedata);
 
 		snprintf(basename, 255, "imgs/%.5d", i-1);
 		snprintf(tiffile, 255, "%s.tif", basename);
 		snprintf(bmpfile, 255, "%s.bmp", basename);
 
-		writetiff(tiffile, width, height, imagedata);
+		writetiff(tiffile, window.width, window.height, imagedata);
 
 #ifdef FINISH
 		printf("Converting and scaling...\n");
