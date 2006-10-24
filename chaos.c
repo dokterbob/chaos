@@ -177,29 +177,32 @@ int main() {
 	unsigned short width, height;
 	unsigned char wfactor;
 
-	if (XMIN == 0.) {
-		wfactor = 1;
-	} else {
-		wfactor = 2;
-	}
-	
 	width = XRES;
 	height = YRES;
 
 	printf("Producing image of %dx%d...\n", width, height);
 
-	double buffer[width/wfactor*height];
-	char imagedata[width*height];
-
 	calc_window window;
-
-        window.xmin = XMIN;
-        window.xmax = XMAX;
+        if (XMIN == -XMAX) {
+                wfactor = 2;
+		printf("Image symmetric, only calculating half.\n");
+		window.xmin = 0.;
+		window.xmax = XMAX;
+        } else {
+		window.xmin = XMIN;
+		window.xmax = XMAX;
+                wfactor = 1;
+		
+        }
+	
         window.ymin = YMIN;
         window.ymax = YMAX;
         window.t = TSTEP;
         window.steps = TSTEP*STEPSS;
-	window.offset = 0;
+        window.offset = 0;
+
+	double buffer[width/wfactor*height];
+	char imagedata[width*height];
 
 	printf("Allocating memory... ");
 	calc_params*** data;
@@ -225,7 +228,7 @@ int main() {
 	char bmpfile[255];
 	char command[255];
 
-	for (i=1; 1; i++) {
+	for (i=1; i<imax; i++) {
 		printf("Frame: %d Range: %f-%f\n", i, window.t*(i-1), window.t*i);
 		calc_image(width/wfactor, height, buffer, data, &window);
 
