@@ -26,8 +26,6 @@ double calc_chaos(calc_window* params, calc_params* data) {
 }
 
 void set_initial(double x, double y, calc_params* data) {
-        // Set initial values for solving the ODE
-	
 #ifdef DEBUG
 	printf("Setting initial values for x=%d y=%d\n", x, y);
 #endif
