@@ -17,6 +17,10 @@ ifdef STEPLOG
 CCFLAGS		+= -DSTEPLOG
 endif
 
+ifdef LZW
+CCFLAGS		+= -DLZW
+endif
+
 LD		= ${CC}
 LDFLAGS	 	= 
 

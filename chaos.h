@@ -52,7 +52,8 @@ void calc_image(unsigned int width, unsigned int height, double* buffer, calc_pa
 void doubletochar(unsigned int size, double* buf, char* charbuf);
 
 // Write a TIFF image to filename with dimensions width and height. Data read from buffer is places therein
-// row-for-row.
+// row-for-row. A #define LZW 1 makes this bugger try and use LZW compression. Recommended if your libtiff
+// supports it.
 void writetiff(char* filename, int width, int height, char* buffer);
 
 // This function expects data to be filled with an image half the width we require. This image it mirrors to
