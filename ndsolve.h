@@ -41,8 +41,15 @@ void pr_step(double x, double y, double vx, double vy, double ax, double ay);
  * fledged solver. Parameters as in the solve_ode function. */
 void euler(unsigned short offset, unsigned short steps, double h, double x[3], double y[3], double vx[3], double vy[3], double ax[3], double ay[3]);
 
+/* This 'mysterious' method I found in Huang, T.Y. and Zhou Q.L.: 1993, A Numerical Method for Differential Equations of 
+ * Second Order as published in Celestial Mechanics and Dynamical Astronomy 55: p 405-409 which can be found at
+ * http://www.springerlink.com/content/h2281317764612p5/
+ * For the first two steps I use Euler approximation. Parameters, once again, as in solve_ode. */
 void method_a(unsigned short offset, unsigned short steps, double h, double x[3], double y[3], double vx[3], double vy[3], double ax[3], double ay[3]);
 
+/* Adams-Bashford algorithm implemented on the basis of the syllabus 'Inleiding Numerieke Natuurkunde' (Dutch) as can be 
+ * found on http://www.nikhef.nl/%7Eh73/numnat/docu/col-tot.pdf
+ * Once again same parameters as solve_ode. */
 void adams_bashford(unsigned short offset, unsigned short steps, double h, double x[3], double y[3], double vx[3], double vy[3], double ax[3], double ay[3]);
 
 
