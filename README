@@ -1,0 +1,93 @@
+Chaos 0.9
+=========
+This program was written by Mathijs de Bruin as an exercise during a course in numerical
+physics at the University of Amsterdam in 2006. It is a GPL'd program that calculates 
+the predictability of a very simple physical system in very high precision and is able
+to write the results to a TIFF file.
+
+What it does
+============
+This program does calculations on a fairly simple physical system, namely a spring pendulum:
+consider a nail in a wall with a spring dingling on it with a weight connected to it. The 
+motion of this system can be described by two very simple differential equations, if the both
+the gravitational constant, the spring constant and the mass of the weight are taken to equal
+one.
+
+xdotdot = x*(1 - sqrt(x^2+y^2))/sqrt(x^2+y^2)
+ydotdot = y*(1 - sqrt(x^2+y^2))/sqrt(x^2+y^2) - 1
+
+Using these equations I can numerically calculate the position after a certain time given a 
+initial speed and position are known. What I do here to acquire a brightness value for each
+pixel is solving these equations four times for each pixel.
+
+First I calculate the position at a specified time with a starting position just left of the
+'center' of the pixel. Then I go and do the same to the right of this pixel. Of these two
+positions I take the absolute value of the difference of the horizontal component.
+
+The same goes for the vertical component; I calculate a little above the pixel and a little
+bit under it and take the distance between them in the vertical direction. 
+These two values are added to yield for each pixel a floating point value which is then nor-
+malized and written to a TIFF file.
+
+After that the time is increased (or actually, the calculations are _continued_, the program
+keeping in memory the place it stopped calculating) so we can actually _see_ 'chaos' emerging.
+
+For Dutch speakers, more information can be found at my website, where I have the ancestor
+of this program implemented in Mathematica: http://files.dokterbob.net/mathematica-project/
+
+Requirements
+============
+- The program makes use of libtiff, which is freely available at 
+  http://www.remotesensing.org/libtiff/
+- Furthermore I use a library called daa written by Richard A. Hogaboom to efficiently allocate 
+  multi-dimensional arrays which is a little less freely available at his website 
+  http://www.embedded.com/2000/0012/0012feat4.htm 
+  This library is, for now, included but I am not sure as to whether this is copyright in-
+  fringement so we'll see...
+- The GNU getopt, part of the GNU C library. If not part of your system you might want to try
+  freegetopt, found at http://freegetopt.sourceforge.net/
+- ImageMagick if you plan on using some of the flashy tricks denoted hereunder.
+  See: http://www.imagemagick.org/
+
+Compiling
+=========
+Compiling the program is fairly simple. One is able to specify the CPU type as understood by the
+gcc -march=<cpu> parameter, so for a Pentium 4 this would be CPU=pentium4. This program relies
+very heavy on compiler optimization so you'd better get this right. SSE2=1 lets make know you've
+got SSE2 available and want to use it, same goes for the LZW parameter. A lot of older versions
+of libtiff don't have LZW-compression enabled because of now-expired patents.
+With the parameter FINISH=1 one can enable automatic 2x anti-aliasing, contrast optimization and
+BMP-conversion using ImageMagick, given that you have that program installed at all.
+
+make CPU=<cputype> SSE2=1 LZW=1
+
+After compiling the program automatically starts calculating with the default values.
+
+How to use
+==========
+The usage of this program is about as simple as the compilation. Compiled-in default parameters
+can be changed in params.h. Most of them can be tuned at the command line thru the following
+parameters:
+
+--xmin <value>		Floating point denoting the leftmost part of the calculated interval
+--xmax <value>		If xmin + xmax = 0 the program calculates twice as fast because of the
+			symmetry of the results. Recommended!
+			
+--ymin <value>		The y interval. Ain't no symmetry here dude.
+--ymax <value>
+
+--tstep <value>		Increase of time after each image has been written.
+--tmax <value>		Amount of time after which to buzz off. If negative the program will
+			calculate until infinity.
+			
+--steps <value>		The amount of steps per time unit, so steps=1000 and tstep=0.1 yields
+			100 steps per written image.
+
+By default TIFF images are written in the img/ directory numbering from 00000 to 99999. Please
+mail me when you get there! ;)
+
+Contact
+=======
+If you specifically (don't) like this program, have extended it or just plainly have created
+beutiful pictures with it please don't hesitate to let me know. Mail me at drbob@dokterbob.net.
+

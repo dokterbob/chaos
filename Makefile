@@ -37,6 +37,10 @@ ifdef LZW
 CCFLAGS		+= -DLZW
 endif
 
+ifdef FINISH
+CCFLAGS		+= -DFINISH
+endif
+
 LD		= ${CC}
 LDFLAGS	 	= 
 
