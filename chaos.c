@@ -167,15 +167,28 @@ void duplicate_data(int width, int height, char* data) {
 	}
 }
 
+void execute(char* command) {
+	printf("%s\n", command);
+	system(command);
+				
+}
+
 int main() {
-	int width, height;
+	unsigned short width, height;
+	unsigned char wfactor;
+
+	if (XMIN == 0.) {
+		wfactor = 1;
+	} else {
+		wfactor = 2;
+	}
 	
 	width = XRES;
 	height = YRES;
 
 	printf("Producing image of %dx%d...\n", width, height);
 
-	double buffer[width/2*height];
+	double buffer[width/wfactor*height];
 	char imagedata[width*height];
 
 	calc_window window;
@@ -195,7 +208,7 @@ int main() {
 	char *free_ptr;
 	char *base_ptr;
 	
-	int d[3] = {width/2, height, 4};
+	int d[3] = {width/wfactor, height, 4};
 	int st[3] = {0,0,0};
 	
 	if ( (data = (calc_params***)daav(sizeof(calc_params), 3, d, st, &err_code, &free_ptr, NULL)) == NULL ) {
@@ -214,10 +227,11 @@ int main() {
 
 	for (i=1; 1; i++) {
 		printf("Frame: %d Range: %f-%f\n", i, window.t*(i-1), window.t*i);
-		calc_image(width/2, height, buffer, data, &window);
+		calc_image(width/wfactor, height, buffer, data, &window);
 
-		doubletochar(width * height/2, buffer, imagedata);
-		duplicate_data(width, height, imagedata);
+		doubletochar(width * height/wfactor, buffer, imagedata);
+		
+		if (wfactor == 2) duplicate_data(width, height, imagedata);
 
 		snprintf(basename, 255, "imgs/%.5d", i-1);
 		snprintf(tiffile, 255, "%s.tif", basename);
@@ -225,19 +239,17 @@ int main() {
 
 		writetiff(tiffile, width, height, imagedata);
 
+#ifdef FINISH
 		printf("Converting and scaling...\n");
 		snprintf(command, 255, "convert -contrast -depth 24 -type truecolor -resize 50%% %s %s", tiffile, bmpfile);
-
-		printf("%s\n", command);
-		system(command);
+		execute(command);
 
 		snprintf(command, 255, "scp -C %s drbob@whale.dokterbob.net:/var/files/Unsorted/Temp/chaos/mini/", bmpfile);
-                printf("%s\n", command);
-                system(command);
+		execute(command);
 
                 snprintf(command, 255, "rm %s %s", tiffile, bmpfile);
-                printf("%s\n", command);
-                system(command);
+		execute(command);
+#endif
 		window.offset = 1;
 	}
 			
