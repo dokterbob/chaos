@@ -41,6 +41,9 @@ void pr_step(calc_params* data, unsigned char n) {
 
 // Backward Euler approximation
 void euler(unsigned char offset, unsigned short steps, double h, calc_params* data) {
+#ifdef STEPLOG
+	printf("Starting Euler...\n");
+#endif
 	double r;
 	unsigned short k=0;
 
@@ -57,11 +60,12 @@ void euler(unsigned char offset, unsigned short steps, double h, calc_params* da
                 data->ax[1] = a_x(r, data->x[1]);
                 data->ay[1] = a_y(r, data->y[1]);
 
-		pr_step(data, 1);
-
 		k++;
 	}
 
+	pr_step(data, 0);
+	pr_step(data, 1);
+	
 	for(;k<steps;k++) {
                 data->x[2] = data->x[1] + h * data->vx[1];
                 data->y[2] = data->y[1] + h * data->vy[1];
@@ -82,6 +86,10 @@ void euler(unsigned char offset, unsigned short steps, double h, calc_params* da
 }
 
 void method_a(unsigned char offset, unsigned short steps, double h, calc_params* data) {
+#ifdef STEPLOG
+	        printf("Starting Method-A...\n");
+#endif
+		
         double k1x, k2x, k3x, k1y, k2y, k3y;
 	double tx, ty;
 	double sx, sy;
@@ -145,6 +153,10 @@ void method_a(unsigned char offset, unsigned short steps, double h, calc_params*
 }
 
 void adams_bashford(unsigned char offset, unsigned short steps, double h, calc_params *data) {
+#ifdef STEPLOG
+	        printf("Starting Adams-Bashford...\n");
+#endif
+		
         unsigned short k;
 
         const double c1 = 3./2.;

@@ -1,13 +1,21 @@
 // Default parameters
-#define XRES 320
-#define YRES 240
+#define DX 0.01
+#define DY 0.01
 
-#define XMIN -10
-#define XMAX 10
+#define VX0 0.
+#define VY0 0.
 
-#define YMIN -10
-#define YMAX 10
+#define XRES 100
+#define YRES 100
 
-#define TSTEP 0.1
+#define XMIN -10.
+#define XMAX 10.
+
+#define YMIN -10.
+#define YMAX 10.
+
+#define TSTEP .1
 #define STEPSS 1000
+
+#define TMAX -1.
 

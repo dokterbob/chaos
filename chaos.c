@@ -1,48 +1,60 @@
 #include "chaos.h"
 
 double calc_chaos(ode_params* params, calc_params* data) { 
-        // The step size for calculation
-        double dx = 0.01;
-        double dy = 0.01;
-
-	// Set initial values
-	if (!params->offset) {
-		data[0].x[0] = params->x0 - dx;
-		data[0].y[0] = params->y0;
-		data[0].vx[0] = params->vx0;
-		data[0].vy[0] = params->vy0;
-
-                data[1].x[0] = params->x0 + dx;
-                data[1].y[0] = params->y0;
-                data[1].vx[0] = params->vx0;
-                data[1].vy[0] = params->vy0;
-
-                data[2].x[0] = params->x0;
-                data[2].y[0] = params->y0 - dy;
-                data[2].vx[0] = params->vx0;
-                data[2].vy[0] = params->vy0;
-
-                data[3].x[0] = params->x0;
-                data[3].y[0] = params->y0 + dy;
-                data[3].vx[0] = params->vx0;
-                data[3].vy[0] = params->vy0;
-	}
-
 	// Set the stepsize
 	double h = params->t/params->steps;
 
+	// Solve that ODE like you're bourne to do it! (*SHAKE it*!)
 	int i;
 	for (i=0; i<4; i++) {
 		solve_ode(params->offset, params->steps, h, &data[i]);
 	}
 
-	const int cur = 1;
+	// The latest calculated position will be in 1 and not 2 in the array with length
+	// 3 because of the shuffling that takes place in solve_ode. (Please refer to that
+	// code for more insight.)
+	static const int cur = 1;
 	double difx, dify;
 
-	difx = data[1].x[cur] - data[0].x[cur];
-	dify = data[3].y[cur] - data[2].y[cur];
+	// One takes the absolute value of the difference between two calculated values,
+	// corresponding thus to the derivate to x resp y when the ODE is seen as a 
+	// functional. 
+	difx = fabs(data[1].x[cur] - data[0].x[cur]);
+	dify = fabs(data[3].y[cur] - data[2].y[cur]);
 
-	return fabs(difx) + fabs(dify);
+	return difx + dify;
+}
+
+void set_initial(double x, double y, calc_params* data) {
+        // Set initial values for solving the ODE
+	
+#ifdef DEBUG
+	printf("Setting initial values for x=%d y=%d\n", x, y);
+#endif
+	
+	// data[0] calculates just left from our point of interest
+        data[0].x[0] = x - DX;
+        data[0].y[0] = y;
+        data[0].vx[0] = VX0;
+        data[0].vy[0] = VY0;
+
+	// data[1] calculates just right of it
+        data[1].x[0] = x + DX;
+        data[1].y[0] = y;
+        data[1].vx[0] = VX0;
+        data[1].vy[0] = VY0;
+
+	// data[2] moves a tad bit under our point
+        data[2].x[0] = x;
+        data[2].y[0] = y - DY;
+        data[2].vx[0] = VX0;
+        data[2].vy[0] = VY0;
+
+	// data[3] goes little above
+        data[3].x[0] = x;
+        data[3].y[0] = y + DY;
+        data[3].vx[0] = VX0;
+        data[3].vy[0] = VY0;
 }
 
 void calc_image(unsigned int width, unsigned int height, double* buffer, calc_params*** data, calc_window* window) {
@@ -58,21 +70,19 @@ void calc_image(unsigned int width, unsigned int height, double* buffer, calc_pa
 
 	params.t = window->t;
 	params.steps = window->steps;
-	params.vx0 = 0.;
-	params.vy0 = 0.;
 	params.offset = window->offset;
 
 	k=0;
 	y=window->ymin;
 	for (y_i=0; y_i<height; y_i++) {
+		
 		x=window->xmin;
 		for (x_i=0; x_i<width; x_i++) {
-			params.x0 = x;
-			params.y0 = y;
+			if (!params.offset) set_initial(x, y, data[x_i][y_i]);
 			
 			buffer[k] = calc_chaos(&params, data[x_i][y_i]);
 			#ifdef DEBUG
-			printf("Calculating x=%d y=%d: %f (%fx%f)\n", x_i, y_i, buffer[k], x, y);
+			printf("Calculated x=%d y=%d: %f (%fx%f)\n", x_i, y_i, buffer[k], x, y);
 			#endif
 			x += xstep;
 			k++;
@@ -91,7 +101,7 @@ void doubletochar(unsigned int size, double* buf, char* charbuf) {
 	unsigned int i;
 	double maxval=0., minval=0., scale;
 
-	printf("Converting to image...\n");
+	printf("Normalizing image...\n");
 
 	// First find the heighest and the lowest value
 	for (i=0; i<size; i++) {
@@ -102,7 +112,6 @@ void doubletochar(unsigned int size, double* buf, char* charbuf) {
 	scale = 254./(maxval - minval);
 	printf("Maximum value: %f\nMinimum value: %f\nScale factor: %f\n", maxval, minval, scale);
 
-	printf("Setting char array...\n");
 	for (i=0; i<size; i++) {
 		charbuf[i] = (char)rint(buf[i]*scale);
 	}
@@ -151,7 +160,7 @@ void duplicate_data(int width, int height, char* data) {
 	int x, y, k;
 	int halfway = width/2;
 
-	printf("Mirroring image: %d = 2x%d.\n",width*height, halfway);
+	printf("Mirroring image...\n");
 
 	k=0;
 	for (y=0; y<height; y++) {
@@ -169,8 +178,7 @@ void duplicate_data(int width, int height, char* data) {
 
 void execute(char* command) {
 	printf("%s\n", command);
-	system(command);
-				
+	system(command);		
 }
 
 void parse_opts(int argc, char **argv, calc_window* window) {
@@ -180,23 +188,25 @@ void parse_opts(int argc, char **argv, calc_window* window) {
 	
 	static struct option long_options[] =
 		{
-			{"xres", required_argument, NULL, 'w'},
-			{"yres", required_argument, NULL, 'h'},
+			{"xres", required_argument, NULL, 'x'},
+			{"yres", required_argument, NULL, 'y'},
 			{"xmin", required_argument, NULL, 'a'},
 			{"xmax", required_argument, NULL, 'b'},
 			{"ymin", required_argument, NULL, 'c'},
 			{"ymax", required_argument, NULL, 'd'},
 			{"time-per-step", required_argument, NULL, 't'},
-			{"steps", required_argument, NULL, 's'}
+			{"steps", required_argument, NULL, 's'},
+			{"tmax", required_argument, NULL, 'm'},
+			{"help", no_argument, NULL, 'h'}
 		};
 	
 	while ((opt = getopt_long(argc, argv, "w:h:a:b:c:d:t:s", long_options, &option_index)) != -1) {
 		switch (opt) {	
-			case 'w':
+			case 'x':
 				window->width = strtol(optarg, &err, 10);
 				break;
 
-			case 'h':
+			case 'y':
 				window->height = strtol(optarg, &err, 10);
 				break;
 
@@ -224,6 +234,10 @@ void parse_opts(int argc, char **argv, calc_window* window) {
                                 window->steps = strtol(optarg, &err, 10);
 				break;
 
+			case 'm':
+				window->tmax = strtod(optarg, &err);
+				break;
+
 			default:
 				// If none matched, make sure we set *err to something other than NULL
 				err = malloc(sizeof(char));
@@ -232,7 +246,7 @@ void parse_opts(int argc, char **argv, calc_window* window) {
 		}
 	
 		if (*err != '\0') {
-			fprintf(stderr, "usage: %s --xres <pixels> --yres <pixels> --xmin <value> --xmax <value> --ymin <value> --ymax <value> --time-per-step <value> --steps <value>\n", argv[0]);
+			fprintf(stderr, "usage: %s --xres <pixels> --yres <pixels> --xmin <value> --xmax <value> --ymin <value> --ymax <value> --tmax <value> --time-per-step <value> --steps <value>\n", argv[0]);
                         exit(EXIT_FAILURE);
 		}
 	}
@@ -250,9 +264,12 @@ int main(int argc, char **argv) {
 	window.height = YRES;
 	window.xmax = XMAX;
 	window.xmin = XMIN;
+	window.ymax = YMAX;
+	window.ymin = YMIN;
 	window.t = TSTEP;
 	window.steps = TSTEP*STEPSS;
-	window.offset = 1;
+	window.tmax = -1.;
+	window.offset = 0;
 	
 	parse_opts(argc, argv, &window);
 
@@ -286,22 +303,33 @@ int main(int argc, char **argv) {
 	
 	printf("done.\n");
 		
-	int i;
-	int imax=2;
 	char basename[255];
 	char tiffile[255];
 	char bmpfile[255];
 	char command[255];
 
-	for (i=1; i<imax; i++) {
-		printf("Frame: %d Range: %f-%f\n", i, window.t*(i-1), window.t*i);
+	double t=0.;
+
+	char endless;
+	if (window.tmax < 0) {
+		endless = 1;
+		printf("\nStarted calculating until the end of time\n");
+	} else {
+		endless = 0;
+		printf("\nStarted calculating until time is %f\n", window.tmax);
+	}
+
+	while (endless || t<window.tmax) {
+		t = window.t*(window.offset+1);
+		
+		printf("\nFrame: %d Range: %f-%f\n", window.offset+1, window.t*window.offset, t);
 		calc_image(window.width/wfactor, window.height, buffer, data, &window);
 
 		doubletochar(window.width * window.height/wfactor, buffer, imagedata);
 		
 		if (wfactor == 2) duplicate_data(window.width, window.height, imagedata);
 
-		snprintf(basename, 255, "imgs/%.5d", i-1);
+		snprintf(basename, 255, "imgs/%.5d", window.offset);
 		snprintf(tiffile, 255, "%s.tif", basename);
 		snprintf(bmpfile, 255, "%s.bmp", basename);
 
@@ -318,9 +346,13 @@ int main(int argc, char **argv) {
                 snprintf(command, 255, "rm %s %s", tiffile, bmpfile);
 		execute(command);
 #endif
-		window.offset = 1;
+		window.offset++;
 	}
+
+	printf("\n%d frames written.\n", window.offset+1);
+	printf("Done enough, dozing off for bed...\n");
+							
 			
-	return 0;
+	return EXIT_SUCCESS;
 }
 
