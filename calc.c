@@ -15,8 +15,6 @@
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA */
 #include "calc.h"
 
-#define NTHREADS 1
-
 double calc_chaos(calc_window* params, calc_params* data) { 
         // Set the stepsize
         double h = params->tstep/params->steps;
@@ -84,13 +82,13 @@ void calc_image(double* buffer, calc_params*** data, calc_window* window) {
 	pthread_t* thread = malloc(sizeof(pthread_t)*NTHREADS);
 	calc_data** p = malloc(sizeof(calc_data*)*NTHREADS);
 	
-	//div_t bla = div(window->height, NTHREADS);
-	//int batchsize = (unsigned int)bla.quot;
+	div_t bla = div(window->height, NTHREADS);
+	unsigned int batchsize = bla.quot;
 	
-	int batchsize = div(window->height, NTHREADS).quot;
+	//int batchsize = div(window->height, NTHREADS).quot;
 
 	#ifdef DEBUG
-	printf("Batchsize: %d\n", batchsize);
+	printf("Batchsize: (%d/%d) = %d + %d\n", window->height, NTHREADS, batchsize, bla.rem);
 	#endif
 	
 	// Start threads
@@ -106,10 +104,10 @@ void calc_image(double* buffer, calc_params*** data, calc_window* window) {
 		p[i]->k = i*batchsize*window->width;
 		p[i]->y_i = i*batchsize;
 		
-		if (window->height - (i-1)*batchsize > batchsize) {
-			p[i]->rows = batchsize-1;
+		if (i != (NTHREADS-1)) {
+			p[i]->rows = batchsize;
 		} else {
-			p[i]->rows = window->height - (i-1)*batchsize+1;
+			p[i]->rows = window->height - i*batchsize;
 		}
 		
 		printf("Thread %d doing rows %d to %d\n", i, p[i]->y_i, p[i]->y_i+p[i]->rows-1);
