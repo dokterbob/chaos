@@ -181,6 +181,33 @@ void parse_opts(int argc, char **argv, calc_window* window) {
 
 }
 
+calc_params*** allocate_data(unsigned int width, unsigned int height) {
+	int i,j;
+	calc_params*** data;
+	
+	data = malloc(sizeof(calc_params**)*width);
+	for (i=0; i<width; i++) {
+		data[i] = malloc(sizeof(calc_params*)*height);
+		
+		for (j=0; j<height; j++) {
+			data[i][j] = malloc(sizeof(calc_params)*4);
+		}
+	}
+	/*
+	int err_code = 0;
+	char *free_ptr;
+	char *base_ptr;
+
+	unsigned int d[3] = {width, height, 4};
+	int st[3] = {0,0,0};
+
+	if ( (data = (calc_params***)daav(sizeof(calc_params), 3, d, st, &err_code, &free_ptr, NULL)) == NULL ) {
+	   printf("daav: error on dynamic	allocation. %s\n", daa_errs[err_code]);
+	}
+	*/
+	return data;
+}
+
 int main(int argc, char **argv) {
 	unsigned short width, height;
 	unsigned char wfactor;
@@ -219,17 +246,7 @@ int main(int argc, char **argv) {
 	printf("Allocating memory... ");
 	calc_params*** data;
 	
-	int err_code = 0;
-	char *free_ptr;
-	char *base_ptr;
-	
-	unsigned int d[3] = {window.width, window.height, 4};
-	int st[3] = {0,0,0};
-	
-	if ( (data = (calc_params***)daav(sizeof(calc_params), 3, d, st, &err_code, &free_ptr, NULL)) == NULL ) {
-		printf("daav: error on dynamic	allocation. %s\n", daa_errs[err_code]);
-	} 
-	
+	data = allocate_data(window.width, window.height);
 	
 	printf("done.\n");
 		

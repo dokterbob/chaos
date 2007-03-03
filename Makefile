@@ -41,6 +41,10 @@ ifdef LZW
 CCFLAGS		+= -DLZW
 endif
 
+ifdef M64
+CCFLAGS		+= -m64
+endif
+
 ifdef FINISH
 CCFLAGS		+= -DFINISH
 endif
