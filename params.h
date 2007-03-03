@@ -21,8 +21,8 @@
 #define VX0 0.
 #define VY0 0.
 
-#define XRES 320
-#define YRES 240
+#define XRES 128
+#define YRES 96
 
 #define XMIN -10.
 #define XMAX 10.
@@ -30,8 +30,8 @@
 #define YMIN -10.
 #define YMAX 10.
 
-#define TSTEP .1
+#define TSTEP 1.0
 #define STEPSS 1000
 
-#define TMAX -1.
+#define TMAX 1.
 

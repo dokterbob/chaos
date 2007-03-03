@@ -23,8 +23,18 @@ void doubletochar(unsigned int size, double* buf, char* charbuf) {
 
 	// First find the heighest and the lowest value
 	for (i=0; i<size; i++) {
-		if (buf[i] > maxval) maxval = buf[i];
-		if (buf[i] < minval) minval = buf[i];
+		if (buf[i] > maxval) {
+			maxval = buf[i];
+			#ifdef DEBUG
+				printf("New maximumum %f found at position %d\n", maxval, i);
+			#endif
+		}
+		if (buf[i] < minval) {
+			minval = buf[i];
+			#ifdef DEBUG
+				printf("New minimum %f found at position %d\n", minval, i);
+			#endif		
+		}
 	}
 	
 	scale = 254./(maxval - minval);
@@ -193,16 +203,18 @@ int main(int argc, char **argv) {
 
 	printf("Producing image of %dx%d...\n", window.width, window.height);
 
+	char imagedata[window.width*window.height];
+
         if (window.xmin == -window.xmax) {
                 wfactor = 2;
 		printf("Image symmetric, only calculating half.\n");
 		window.xmin = 0.;
+		window.width = window.width/wfactor;
         } else {
                 wfactor = 1;
         }
 	
-	double buffer[window.width/wfactor*window.height];
-	char imagedata[window.width*window.height];
+	double buffer[window.width*window.height];
 
 	printf("Allocating memory... ");
 	calc_params*** data;
@@ -211,7 +223,7 @@ int main(int argc, char **argv) {
 	char *free_ptr;
 	char *base_ptr;
 	
-	unsigned int d[3] = {window.width/wfactor, window.height, 4};
+	unsigned int d[3] = {window.width, window.height, 4};
 	int st[3] = {0,0,0};
 	
 	if ( (data = (calc_params***)daav(sizeof(calc_params), 3, d, st, &err_code, &free_ptr, NULL)) == NULL ) {
@@ -241,17 +253,17 @@ int main(int argc, char **argv) {
 		t = window.tstep*(window.offset+1);
 		
 		printf("\nFrame: %d Range: %f-%f\n", window.offset+1, window.tstep*window.offset, t);
-		calc_image(window.width/wfactor, window.height, buffer, data, &window);
+		calc_image(buffer, data, &window);
 
-		doubletochar(window.width * window.height/wfactor, buffer, imagedata);
+		doubletochar(window.width * window.height, buffer, imagedata);
 		
-		if (wfactor == 2) duplicate_data(window.width, window.height, imagedata);
+		if (wfactor == 2) duplicate_data(window.width*wfactor, window.height, imagedata);
 
 		snprintf(basename, 255, "imgs/%.5d", window.offset);
 		snprintf(tiffile, 255, "%s.tif", basename);
 		snprintf(bmpfile, 255, "%s.bmp", basename);
 
-		writetiff(tiffile, window.width, window.height, imagedata);
+		writetiff(tiffile, window.width*wfactor, window.height, imagedata);
 
 #ifdef FINISH
 		// This requires ImageMagick
@@ -265,7 +277,7 @@ int main(int argc, char **argv) {
 		window.offset++;
 	}
 
-	printf("\n%d frames written.\n", window.offset+1);
+	printf("\n%d frames written.\n", window.offset);
 	printf("Done enough, dozing off for bed...\n");
 							
 			

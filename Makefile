@@ -17,7 +17,7 @@
 CC		= gcc
 CCFLAGS		= -O2
 
-ifndef DEBUG
+ifdef DEBUG
 DEBUG_CODE	= 1
 endif
 
@@ -50,10 +50,14 @@ LDFLAGS	 	=
 
 CPPLIBS		= -lm -ldl -lgcc -lc -ltiff
 
-ifdef DEBUG
-CCFLAGS		+= -g -pg -DDEBUG
+ifdef DEBUG_CODE
+CCFLAGS		+= -g -pg
 LDFLAGS		+= -pg 
 endif
+
+ifdef DEBUG
+CCFLAGS		+= -DDEBUG
+endif 
 
 LIBS		=${CPPLIBS} ${GPLLIBS}
 

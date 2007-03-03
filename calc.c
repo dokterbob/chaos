@@ -15,7 +15,7 @@
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA */
 #include "calc.h"
 
-#define NTHREADS 3
+#define NTHREADS 1
 
 double calc_chaos(calc_window* params, calc_params* data) { 
         // Set the stepsize
@@ -44,7 +44,7 @@ double calc_chaos(calc_window* params, calc_params* data) {
 
 void set_initial(double x, double y, calc_params* data) {
 #ifdef DEBUG
-        printf("Setting initial values for x=%d y=%d\n", x, y);
+        printf("Setting initial values for x=%f y=%f\n", x, y);
 #endif
         
         // data[0] calculates just left from our point of interest
@@ -72,44 +72,120 @@ void set_initial(double x, double y, calc_params* data) {
         data[3].vy[0] = VY0;
 }
 
-void calc_image(unsigned int width, unsigned int height, double* buffer, calc_params*** data, calc_window* window) {
-	calc_data* p = malloc(sizeof(calc_data));
+void calc_image(double* buffer, calc_params*** data, calc_window* window) {
+        printf("Calculating %dx%d pixels in %d steps, using %d threads: \n", window->width, window->height, window->steps, NTHREADS);
+
+	// Prepare the initial values
+	if (!window->offset) {
+		prepare_data(data, window);
+	}
+
 	
-	// This shoudl be done from a higher level, off course
-	p->width = width;
-	p->height = height;
-	p->buffer = buffer;
-	p->data = data;
-	p->window = window;
+	pthread_t* thread = malloc(sizeof(pthread_t)*NTHREADS);
+	calc_data** p = malloc(sizeof(calc_data*)*NTHREADS);
 	
-        printf("Calculating %dx%d pixels in %d steps: \n", p->width, p->height, p->window->steps);
+	//div_t bla = div(window->height, NTHREADS);
+	//int batchsize = (unsigned int)bla.quot;
+	
+	int batchsize = div(window->height, NTHREADS).quot;
 
-        p->xstep = (p->window->xmax - p->window->xmin)/p->width;
-        p->ystep = (p->window->ymax - p->window->ymin)/p->height;
+	#ifdef DEBUG
+	printf("Batchsize: %d\n", batchsize);
+	#endif
+	
+	// Start threads
+	int i;
+	for (i=0; i < NTHREADS; i++) {
+		// Dynamic allocation, bitch! (Yes, we can have any dynamic number of threads)
+		p[i] = malloc(sizeof(calc_data));
+		
+		p[i]->buffer = buffer;
+		p[i]->data = data;
+		p[i]->window = window;
+		
+		p[i]->k = i*batchsize*window->width;
+		p[i]->y_i = i*batchsize;
+		
+		if (window->height - (i-1)*batchsize > batchsize) {
+			p[i]->rows = batchsize-1;
+		} else {
+			p[i]->rows = window->height - (i-1)*batchsize+1;
+		}
+		
+		printf("Thread %d doing rows %d to %d\n", i, p[i]->y_i, p[i]->y_i+p[i]->rows-1);
+		#ifdef DEBUG
+		printf("k runs from %d to %d\n", p[i]->k, p[i]->k+p[i]->rows*window->width);
+		#endif
 
-        p->k = 0;
-        p->y = p->window->ymin;
-        for (p->y_i = 0; p->y_i < p->height; p->y_i++) {
-                calc_row(p);
 
-                // Print a dot for every row processed
-                printf(".");
-                fflush(stdout);
-        }
+		pthread_create(&thread[i], NULL, (void *)calc_thread, p[i]);
+	}
+	
+	// Stick 'em together
+	int j;
+	for (j=0; j < NTHREADS; j++) {
+		pthread_join(thread[j], NULL);
+	}
+	
+	// When done, clean up
+	for (j=0; j < NTHREADS; j++) {
+		free(p[j]);
+	}
+
+	free(p);
+	
         printf(" done\n");
 }
 
-void calc_row(calc_data* p) {
-	p->x = p->window->xmin;
-	for (p->x_i = 0; p->x_i < p->width; p->x_i++) {
-		if (!p->window->offset) set_initial(p->x, p->y, p->data[p->x_i][p->y_i]);
+void prepare_data(calc_params*** data, calc_window* window) {
+	double x, y;
+	unsigned int x_i, y_i;
+	
+	double xstep, ystep;
+	
+	xstep = (window->xmax - window->xmin)/window->width;
+        ystep = (window->ymax - window->ymin)/window->height;
+	
+	y = window->ymin;
+	for (y_i = 0; y_i < window->height; y_i++) {
+		x = window->xmin;
 		
+		for (x_i = 0; x_i < window->width; x_i++) {
+			set_initial(x, y, data[x_i][y_i]);
+			x += xstep;
+		}
+		y += ystep;
+	}
+}
+
+void *calc_thread(calc_data* p) {
+	unsigned int stopval;
+	stopval = p->y_i + p->rows;
+	
+        for (; p->y_i <  stopval; p->y_i++) {
+		p->x_i = 0;
+             		
+		#ifndef DEBUG
+                // Print a dot for every row processed
+                printf(".");
+                fflush(stdout);
+		#endif
+		
+		#ifdef DEBUG
+		printf("Calculating line %d\n", p->y_i);
+		#endif
+		
+		calc_row(p);
+        }
+}
+
+void calc_row(calc_data* p) {
+	for (p->x_i; p->x_i < p->window->width; p->x_i++) {
+
 		p->buffer[p->k] = calc_chaos(p->window, p->data[p->x_i][p->y_i]);
 #ifdef DEBUG
-		printf("Calculated x=%d y=%d: %f (%fx%f)\n", p->x_i, p->y_i, p->buffer[p->k], p->x, p->y);
+		printf("Calculated x=%d y=%d (%d) : %f\n", p->x_i, p->y_i, p->k, p->buffer[p->k]);
 #endif
-		p->x += p->xstep;
 		p->k++;
 	}
-	p->y += p->ystep;
 }
