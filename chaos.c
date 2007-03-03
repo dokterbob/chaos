@@ -281,7 +281,7 @@ int main(int argc, char **argv) {
 	window.ymin = YMIN;
 	window.tstep = TSTEP;
 	window.steps = TSTEP*STEPSS;
-	window.tmax = -1.;
+	window.tmax = TMAX;
 	window.offset = 0;
 	
 	parse_opts(argc, argv, &window);
