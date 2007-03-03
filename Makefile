@@ -43,6 +43,7 @@ endif
 
 ifdef M64
 CCFLAGS		+= -m64
+LDFLAGS		+= -m64
 endif
 
 ifdef FINISH

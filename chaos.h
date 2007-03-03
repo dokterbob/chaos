@@ -21,9 +21,6 @@
 #include <string.h>
 #include <tiffio.h>
 
-// Library for multi-dimensional efficient memory allocation
-#include "daa.h"
-
 // This is where the magic happens
 #include "calc.h"
 
