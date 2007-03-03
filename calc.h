@@ -42,6 +42,20 @@ typedef struct {
         unsigned char offset;
 } calc_window;
 
+// This the only parameter needed to be passed around to calculate
+typedef struct {
+	unsigned int x_i, y_i, k;
+
+	double xstep, ystep, x, y;
+
+	unsigned int width, height;
+
+	double* buffer;
+		
+	calc_params*** data;
+	calc_window* window;
+} calc_data;
+
 // Calculate the amount of chaos (predictability) for a given set of initial values
 double calc_chaos(calc_window* params, calc_params* data);
 
@@ -57,3 +71,4 @@ void set_initial(double x, double y, calc_params* data);
 // 1 for to the right, 2 for under and 3 for above. See set_initial for more info.
 void calc_image(unsigned int width, unsigned int height, double* buffer, calc_params*** data, calc_window* window);
 
+void calc_row(calc_data* p);

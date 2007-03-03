@@ -15,6 +15,8 @@
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA */
 #include "calc.h"
 
+#define NTHREADS 3
+
 double calc_chaos(calc_window* params, calc_params* data) { 
         // Set the stepsize
         double h = params->tstep/params->steps;
@@ -71,30 +73,24 @@ void set_initial(double x, double y, calc_params* data) {
 }
 
 void calc_image(unsigned int width, unsigned int height, double* buffer, calc_params*** data, calc_window* window) {
-        unsigned int x_i, y_i, k;
-        double xstep, ystep, x, y;
+	calc_data* p = malloc(sizeof(calc_data));
+	
+	// This shoudl be done from a higher level, off course
+	p->width = width;
+	p->height = height;
+	p->buffer = buffer;
+	p->data = data;
+	p->window = window;
+	
+        printf("Calculating %dx%d pixels in %d steps: \n", p->width, p->height, p->window->steps);
 
-        printf("Calculating %dx%d pixels in %d steps: \n", width, height, window->steps);
+        p->xstep = (p->window->xmax - p->window->xmin)/p->width;
+        p->ystep = (p->window->ymax - p->window->ymin)/p->height;
 
-        xstep = (window->xmax - window->xmin)/width;
-        ystep = (window->ymax - window->ymin)/height;
-
-        k=0;
-        y=window->ymin;
-        for (y_i=0; y_i<height; y_i++) {
-                
-                x=window->xmin;
-                for (x_i=0; x_i<width; x_i++) {
-                        if (!window->offset) set_initial(x, y, data[x_i][y_i]);
-                        
-                        buffer[k] = calc_chaos(window, data[x_i][y_i]);
-                        #ifdef DEBUG
-                        printf("Calculated x=%d y=%d: %f (%fx%f)\n", x_i, y_i, buffer[k], x, y);
-                        #endif
-                        x += xstep;
-                        k++;
-                }
-                y += ystep;
+        p->k = 0;
+        p->y = p->window->ymin;
+        for (p->y_i = 0; p->y_i < p->height; p->y_i++) {
+                calc_row(p);
 
                 // Print a dot for every row processed
                 printf(".");
@@ -103,3 +99,17 @@ void calc_image(unsigned int width, unsigned int height, double* buffer, calc_pa
         printf(" done\n");
 }
 
+void calc_row(calc_data* p) {
+	p->x = p->window->xmin;
+	for (p->x_i = 0; p->x_i < p->width; p->x_i++) {
+		if (!p->window->offset) set_initial(p->x, p->y, p->data[p->x_i][p->y_i]);
+		
+		p->buffer[p->k] = calc_chaos(p->window, p->data[p->x_i][p->y_i]);
+#ifdef DEBUG
+		printf("Calculated x=%d y=%d: %f (%fx%f)\n", p->x_i, p->y_i, p->buffer[p->k], p->x, p->y);
+#endif
+		p->x += p->xstep;
+		p->k++;
+	}
+	p->y += p->ystep;
+}

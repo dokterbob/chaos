@@ -18,6 +18,10 @@ CC		= gcc
 CCFLAGS		= -O2
 
 ifndef DEBUG
+DEBUG_CODE	= 1
+endif
+
+ifndef DEBUG_CODE
 CCFLAGS		+= -O3 -fomit-frame-pointer -ffast-math  -fno-math-errno -funsafe-math-optimizations -fno-trapping-math
 endif
 

@@ -211,7 +211,7 @@ int main(int argc, char **argv) {
 	char *free_ptr;
 	char *base_ptr;
 	
-	int d[3] = {window.width/wfactor, window.height, 4};
+	unsigned int d[3] = {window.width/wfactor, window.height, 4};
 	int st[3] = {0,0,0};
 	
 	if ( (data = (calc_params***)daav(sizeof(calc_params), 3, d, st, &err_code, &free_ptr, NULL)) == NULL ) {
