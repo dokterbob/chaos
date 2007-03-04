@@ -228,7 +228,10 @@ int main(int argc, char **argv) {
 	
 	parse_opts(argc, argv, &window);
 
-	printf("Producing image of %dx%d...\n", window.width, window.height);
+	printf("Producing image of %dx%d...\n\n", window.width, window.height);
+	printf("View window:\n");
+	printf("  x = [%f, %f]\n", window.xmin, window.xmax);
+	printf("  y = [%f, %f]\n\n", window.ymin, window.ymax);
 
 	char imagedata[window.width*window.height];
 

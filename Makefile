@@ -29,6 +29,11 @@ ifdef CPU
 CCFLAGS		+= -march=${CPU}
 endif
 
+ifdef SSE3
+CCFLAGS		+= -msse3
+SSE2		= 1
+endif
+
 ifdef SSE2
 CCFLAGS		+= -msse2 -mfpmath=sse
 endif
@@ -51,7 +56,6 @@ CCFLAGS		+= -DFINISH
 endif
 
 LD		= ${CC}
-LDFLAGS	 	= 
 
 CPPLIBS		= -lm -ldl -lgcc -lc -ltiff
 
