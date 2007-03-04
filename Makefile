@@ -57,7 +57,7 @@ endif
 
 LD		= ${CC}
 
-CPPLIBS		= -lm -ldl -lgcc -lc -ltiff
+CPPLIBS		= -lm -ldl -lgcc -lc -lpthread -ltiff
 
 ifdef DEBUG_CODE
 CCFLAGS		+= -g -pg

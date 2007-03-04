@@ -40,7 +40,7 @@ typedef struct {
         double tmax;
 
         unsigned short steps;
-        unsigned char offset;
+        unsigned int offset;
 } calc_window;
 
 // This the only parameter needed to be passed around to calculate
