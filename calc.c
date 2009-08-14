@@ -142,13 +142,17 @@ void prepare_data(calc_params*** data, calc_window* window) {
 	double xstep, ystep;
 	
 	xstep = (window->xmax - window->xmin)/window->width;
-        ystep = (window->ymax - window->ymin)/window->height;
+	ystep = (window->ymax - window->ymin)/window->height;
 	
-	y = window->ymin;
+	y = window->ymin+ystep/2;
 	for (y_i = 0; y_i < window->height; y_i++) {
-		x = window->xmin;
+		x = window->xmin+xstep/2;
 		
 		for (x_i = 0; x_i < window->width; x_i++) {
+			#ifdef STEPLOG
+			printf("Setting coords (x, y): (%f, %f)\n", x, y);
+			#endif
+			
 			set_initial(x, y, data[x_i][y_i]);
 			x += xstep;
 		}
